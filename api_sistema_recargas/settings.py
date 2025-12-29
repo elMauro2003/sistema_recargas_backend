@@ -1,8 +1,10 @@
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv()
 
 
 # Quick-start development settings - unsuitable for production
@@ -12,9 +14,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-0&r)1l!c927bn0ai^8@7vh5rz@6-3^1z&%w20n$lelb7)+jdrj'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', default=False)
 
-ALLOWED_HOSTS = []
+LIST_ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS',default='*')
+ALLOWED_HOSTS = LIST_ALLOWED_HOSTS.split(",")
 
 
 # Application definition
@@ -26,27 +29,27 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
     # LOCAL_APPS
     'apps.core',
-    
     # THIR_PARTY_APPS
     'rest_framework',
     'corsheaders',
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",    
-    "http://127.0.0.1:5173",
-]
+
+FRONTEND_URL = os.getenv("FRONTEND_URL", default="http://localhost:5173")
+
+# CORS
+LIST_CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS',default='http://localhost:5173')
+CORS_ALLOWED_ORIGINS = LIST_CORS_ALLOWED_ORIGINS.split(",")
 
 # Permitir todas las solicitudes en desarrollo (opcional, solo para desarrollo)
-CORS_ALLOW_ALL_ORIGINS = True
+#CORS_ALLOW_ALL_ORIGINS = True
 
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',  # Permite acceso sin autenticación
+        'rest_framework.permissions.AllowAny', 
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10
@@ -90,7 +93,18 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    },
+    "mysql": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "HOST": os.getenv("DB_HOST", default="127.0.0.1"),
+        "PORT": os.getenv("DB_PORT", "3306"),
+        "OPTIONS": {
+            "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
+    },
 }
 
 
